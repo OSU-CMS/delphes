@@ -117,7 +117,7 @@ void PileUpMerger::Process()
   Int_t pid, nch, nvtx = -1;
   Float_t x, y, z, t, vx, vy;
   Float_t px, py, pz, e, pt;
-  Double_t dz, dphi, dt, sumpt2;
+  Double_t dz0, dz, dphi, dt, sumpt2;
   Int_t numberOfEvents, event, numberOfParticles;
   Long64_t allEntries, entry;
   Candidate *candidate, *vertex;
@@ -131,6 +131,7 @@ void PileUpMerger::Process()
 
   fFunction->GetRandom2(dz, dt);
 
+  dz0 = -1.0e6;
   dt *= c_light*1.0E3; // necessary in order to make t in mm/c
   dz *= 1.0E3; // necessary in order to make z in mm
   vx = 0.0;
@@ -146,7 +147,11 @@ void PileUpMerger::Process()
     z = candidate->Position.Z();
     t = candidate->Position.T();
     pt = candidate->Momentum.Pt();
-    candidate->Position.SetZ(z + dz);
+
+    if (dz0 < -999999.0)
+      dz0 = z;
+
+    candidate->Position.SetZ(z - dz0 + dz);
     candidate->Position.SetT(t + dt);
     fParticleOutputArray->Add(candidate);
  
